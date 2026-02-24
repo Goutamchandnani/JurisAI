@@ -170,12 +170,12 @@ CUSTOM_CSS = """
     /* Primary Action Button */
     .stButton>button[kind="primary"],
     .stButton>button[data-baseweb="button"][kind="primary"] {
-        background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-light) 100%);
-        color: var(--primary-navy);
+        background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-light) 100%) !important;
+        color: #0A1628 !important;
         border: none;
         border-radius: 10px;
         font-family: 'Inter', sans-serif;
-        font-weight: 600;
+        font-weight: 700 !important;
         font-size: 0.95rem;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -184,6 +184,11 @@ CUSTOM_CSS = """
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
+    }
+    
+    .stButton>button[kind="primary"] p {
+        color: #0A1628 !important;
+        font-weight: 700 !important;
     }
     
     .stButton>button[kind="primary"]::before {
@@ -248,6 +253,23 @@ CUSTOM_CSS = """
         font-size: 0.95rem;
     }
 
+    /* Fix Uploaded File Text Visibility */
+    [data-testid="stUploadedFile"] {
+        background-color: var(--bg-card) !important;
+        border-radius: 8px;
+        padding: 5px;
+    }
+    
+    [data-testid="stUploadedFile"] > div > div > div > span,
+    [data-testid="stUploadedFile"] > div > div > div > small {
+        color: var(--text-primary) !important;
+    }
+    
+    [data-testid="stUploadedFile"] svg {
+        fill: var(--text-primary) !important;
+        color: var(--text-primary) !important;
+    }
+
     /* Info/Success/Warning Boxes */
     .stAlert {
         background: var(--bg-card);
@@ -281,6 +303,15 @@ CUSTOM_CSS = """
         border-color: var(--accent-gold);
         box-shadow: var(--shadow-lg);
         transform: translateY(-2px);
+    }
+    
+    /* Fix Chat Message Text Color */
+    .stChatMessage p, 
+    .stChatMessage h1, 
+    .stChatMessage h2, 
+    .stChatMessage h3,
+    .stChatMessage div[data-testid="stMarkdownContainer"] {
+        color: var(--text-primary) !important;
     }
     
     [data-testid="stChatMessageAvatarUser"] {
@@ -331,7 +362,8 @@ CUSTOM_CSS = """
     .streamlit-expanderHeader {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
-        color: var(--text-primary);
+        font-size: 1.15rem !important;
+        color: var(--accent-gold) !important;
         background: var(--bg-card);
         border: 1px solid var(--border-subtle);
         border-radius: 10px;
@@ -340,10 +372,37 @@ CUSTOM_CSS = """
         backdrop-filter: blur(10px);
     }
     
-    .streamlit-expanderHeader:hover {
-        background: var(--bg-elevated);
-        border-color: var(--accent-gold);
-        box-shadow: var(--shadow-md);
+    .streamlit-expanderHeader p {
+        font-size: 1.15rem !important;
+        color: var(--accent-gold) !important;
+    }
+    
+    .streamlit-expanderHeader:hover,
+    .streamlit-expanderHeader:focus,
+    .streamlit-expanderHeader:active,
+    .streamlit-expanderHeader[aria-expanded="true"]:hover {
+        background: var(--bg-elevated) !important;
+        border-color: var(--accent-gold) !important;
+        box-shadow: var(--shadow-md) !important;
+        color: var(--accent-gold-light) !important;
+    }
+    
+    .streamlit-expanderHeader:hover p,
+    .streamlit-expanderHeader:focus p,
+    .streamlit-expanderHeader:active p,
+    .streamlit-expanderHeader[aria-expanded="true"]:hover p,
+    .streamlit-expanderHeader[aria-expanded="true"] p {
+        color: var(--accent-gold-light) !important;
+    }
+    
+    .streamlit-expanderHeader svg {
+        fill: var(--accent-gold) !important;
+        color: var(--accent-gold) !important;
+    }
+    
+    .streamlit-expanderHeader:hover svg {
+        fill: var(--accent-gold-light) !important;
+        color: var(--accent-gold-light) !important;
     }
     
     .streamlit-expanderContent {
@@ -353,6 +412,17 @@ CUSTOM_CSS = """
         border-radius: 0 0 10px 10px;
         padding: 1.5rem;
         backdrop-filter: blur(10px);
+        font-size: 1.05rem !important;
+        line-height: 1.8 !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .streamlit-expanderContent p,
+    .streamlit-expanderContent div,
+    .streamlit-expanderContent span {
+        font-size: 1.05rem !important;
+        line-height: 1.8 !important;
+        color: var(--text-primary) !important;
     }
 
     /* Progress Bar */
@@ -376,6 +446,22 @@ CUSTOM_CSS = """
         border-radius: 4px;
         font-size: 0.9rem;
         border: 1px solid var(--border-subtle);
+    }
+
+    /* Tooltip Icon */
+    [data-testid="stTooltipIcon"],
+    [data-testid="stTooltipIcon"] svg {
+        color: var(--accent-gold) !important;
+        fill: var(--accent-gold) !important;
+        stroke: var(--accent-gold) !important;
+        opacity: 0.8;
+    }
+    
+    [data-testid="stTooltipIcon"]:hover svg {
+        opacity: 1;
+        color: var(--accent-gold-light) !important;
+        fill: var(--accent-gold-light) !important;
+        stroke: var(--accent-gold-light) !important;
     }
 
     /* Disclaimer */

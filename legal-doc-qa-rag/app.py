@@ -246,7 +246,7 @@ def main():
     # Sidebar
     with st.sidebar:
         st.title("JurisAI")
-        st.markdown("### Document Intelligence")
+        st.markdown("### Advanced Legal Document Intelligence Platform")
         st.markdown("---")
         
         # File upload
@@ -278,15 +278,14 @@ def main():
                     
         # Settings
         with st.expander("System Configuration"):
-            st.text(f"Chunk Size: {os.getenv('CHUNK_SIZE', 1000)}")
-            st.text(f"Top-K: {os.getenv('TOP_K_RESULTS', 5)}")
+            st.markdown(f"Chunk Size: {os.getenv('CHUNK_SIZE', 1000)}")
+            st.markdown(f"Top-K: {os.getenv('TOP_K_RESULTS', 5)}")
         
         # Disclaimer
         st.markdown("---")
         st.markdown(f'<div class="disclaimer">{LEGAL_DISCLAIMER}</div>', unsafe_allow_html=True)
     
     # Main area
-    st.markdown("# Document Analysis")
     
     if st.session_state.current_doc_name:
         st.success(f"Active Document: **{st.session_state.current_doc_name}**")
@@ -315,16 +314,13 @@ def main():
                     
     else:
         # Welcome message with modern design
-        st.markdown("""
-        <div style="text-align: center; padding: 3rem 0 2rem 0;">
-            <h1 style="font-size: 3.5rem; margin-bottom: 0.5rem;">JurisAI</h1>
-            <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 3rem;">
-                Advanced Legal Document Intelligence Platform
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
         
-        st.info("Upload a legal document from the sidebar to begin your analysis.")
+        st.markdown(
+            '<div style="color: var(--text-secondary); background: var(--bg-card); padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 2rem;">'
+            'Upload a legal document from the sidebar to begin your analysis.'
+            '</div>', 
+            unsafe_allow_html=True
+        )
         
         # Feature showcase with modern cards
         col1, col2, col3 = st.columns(3)
@@ -335,7 +331,7 @@ def main():
                 <div class="feature-icon"></div>
                 <h3 style="color: var(--accent-gold); margin-bottom: 1rem;">Semantic Search</h3>
                 <p style="color: var(--text-secondary); line-height: 1.6;">
-                    Context-aware retrieval of relevant clauses and provisions using advanced AI embeddings.
+                    Context-aware retrieval of relevant clauses and provisions using AI embeddings.
                 </p>
             </div>
             """, unsafe_allow_html=True)
