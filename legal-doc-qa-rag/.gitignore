@@ -1,0 +1,16 @@
+.env
+pycache/
+*.pyc
+.pyo
+.pyd
+.Python
+data/uploads/
+!data/uploads/.gitkeep
+data/vectordb/
+!data/vectordb/.gitkeep
+venv/
+.venv/
+*.pdf
+.DS_Store
+*.log
+chroma.sqlite3
