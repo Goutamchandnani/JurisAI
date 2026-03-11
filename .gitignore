@@ -1,28 +1,16 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Environments
 .env
-.venv
-env/
+pycache/
+*.pyc
+.pyo
+.pyd
+.Python
+data/uploads/
+!data/uploads/.gitkeep
+data/vectordb/
+!data/vectordb/.gitkeep
 venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Data and Vector DB
-data/
-vectordb/
-*.db
-*.sqlite3
-uploads/
-
-# OS specific files
+.venv/
+*.pdf
 .DS_Store
-Thumbs.db
-
-# IDEs
-.vscode/
-.idea/
+*.log
+chroma.sqlite3

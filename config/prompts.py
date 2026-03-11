@@ -302,7 +302,6 @@ CUSTOM_CSS = """
     .stChatMessage:hover {
         border-color: var(--accent-gold);
         box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
     }
     
     /* Fix Chat Message Text Color */
@@ -348,7 +347,6 @@ CUSTOM_CSS = """
         line-height: 1.8;
         color: var(--text-primary);
         box-shadow: var(--shadow-lg);
-        backdrop-filter: blur(20px);
         border: 1px solid var(--border-subtle);
         margin: 1rem 0;
     }
@@ -369,7 +367,6 @@ CUSTOM_CSS = """
         border-radius: 10px;
         padding: 1rem 1.5rem;
         transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
     }
     
     .streamlit-expanderHeader p {
@@ -411,7 +408,6 @@ CUSTOM_CSS = """
         border-top: none;
         border-radius: 0 0 10px 10px;
         padding: 1.5rem;
-        backdrop-filter: blur(10px);
         font-size: 1.05rem !important;
         line-height: 1.8 !important;
         color: var(--text-primary) !important;

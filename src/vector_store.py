@@ -1,194 +1,110 @@
 """
-Vector store module - manages ChromaDB for semantic search
+Vector Store Module using ChromaDB
 """
-
 import chromadb
-from chromadb.config import Settings
-from typing import List, Dict, Optional
 import logging
 import os
+import uuid
 
 logger = logging.getLogger(__name__)
 
-
 class VectorStore:
-    """
-    Manages vector database operations using ChromaDB
-    """
-    
-    def __init__(self, persist_directory: str = "./data/vectordb"):
-        """
-        Initialize ChromaDB client
-        Args:
-            persist_directory: Directory to persist vector database
-        """
-        self.persist_directory = persist_directory
-        
-        # Create directory if doesn't exist
-        os.makedirs(persist_directory, exist_ok=True)
-        
-        # Initialize ChromaDB client with persistence
-        self.client = chromadb.PersistentClient(
-            path=persist_directory,
-            settings=Settings(
-                anonymized_telemetry=False,
-                allow_reset=True
-            )
-        )
-        
-    def create_collection(self, collection_name: str, reset: bool = False) -> chromadb.Collection:
-        """
-        Create or get a collection
-        Args:
-            collection_name: Name for the collection
-            reset: If True, delete existing collection first
-        Returns:
-            ChromaDB collection object
-        """
-        if reset:
-            try:
-                self.client.delete_collection(collection_name)
-                logger.info(f"Deleted existing collection: {collection_name}")
-            except:
-                pass
-                
-        collection = self.client.get_or_create_collection(
-            name=collection_name,
-            metadata={"hnsw:space": "cosine"}  # Use cosine similarity
-        )
-        
-        logger.info(f"Collection '{collection_name}' ready")
-        return collection
-        
-    def add_documents(
-        self, 
-        collection: chromadb.Collection,
-        chunks: List[Dict]
-    ) -> int:
-        """
-        Add document chunks to collection
-        Args:
-            collection: ChromaDB collection
-            chunks: List of chunk dicts with 'text', 'embedding', 'chunk_id', metadata
-        Returns:
-            Number of chunks added
-        """
-        # Prepare data for ChromaDB
-        ids = []
-        embeddings = []
-        documents = []
-        metadatas = []
-        
-        for chunk in chunks:
-            if chunk.get('embedding') is None:
-                continue
-                
-            ids.append(chunk['chunk_id'])
-            embeddings.append(chunk['embedding'])
-            documents.append(chunk['text'])
+    def __init__(self, persist_dir="./data/vectordb"):
+        # Ensure directory exists
+        if not os.path.exists(persist_dir):
+            os.makedirs(persist_dir)
             
-            # Prepare metadata (ChromaDB requires dict of str/int/float)
-            metadata = {
-                'token_count': chunk.get('token_count', 0),
-                'chunk_index': chunk.get('chunk_index', 0),
-                'section_title': chunk.get('section_title', ''),
-                'source_file': chunk.get('source_file', ''),
-                'page_number': chunk.get('page_number', 0)
-            }
-            metadatas.append(metadata)
+        self.client = chromadb.PersistentClient(path=persist_dir)
         
-        # Add to collection in batches (ChromaDB has limits)
-        batch_size = 100
-        for i in range(0, len(ids), batch_size):
-            batch_end = min(i + batch_size, len(ids))
-            
-            collection.add(
-                ids=ids[i:batch_end],
-                embeddings=embeddings[i:batch_end],
-                documents=documents[i:batch_end],
-                metadatas=metadatas[i:batch_end]
-            )
-            
-        logger.info(f"Added {len(ids)} chunks to collection")
-        return len(ids)
-        
-    def search(
-        self,
-        collection: chromadb.Collection,
-        query_embedding: List[float],
-        top_k: int = 5,
-        filter_metadata: Optional[Dict] = None
-    ) -> List[Dict]:
+    def create_collection(self, name, reset=False):
         """
-        Search for similar chunks
-        Args:
-            collection: ChromaDB collection
-            query_embedding: Query vector
-            top_k: Number of results to return
-            filter_metadata: Optional metadata filters
-        Returns:
-            List of matching chunks with similarity scores
-        """
-        # Perform similarity search
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            where=filter_metadata  # Optional filtering
-        )
-        
-        # Format results
-        formatted_results = []
-        
-        if results['ids'] and len(results['ids'][0]) > 0:
-            for i in range(len(results['ids'][0])):
-                result = {
-                    'chunk_id': results['ids'][0][i],
-                    'text': results['documents'][0][i],
-                    'similarity': 1 - results['distances'][0][i],  # Convert distance to similarity
-                    'metadata': results['metadatas'][0][i]
-                }
-                formatted_results.append(result)
-        
-        logger.info(f"Found {len(formatted_results)} relevant chunks")
-        return formatted_results
-        
-    def delete_collection(self, collection_name: str) -> bool:
-        """
-        Delete a collection
-        Args:
-            collection_name: Name of collection to delete
-        Returns:
-            True if successful
+        Get or create a collection
         """
         try:
-            self.client.delete_collection(collection_name)
-            logger.info(f"Deleted collection: {collection_name}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to delete collection: {e}")
-            return False
+            if reset:
+                try:
+                    self.client.delete_collection(name)
+                except Exception:
+                    pass # Collection didn't exist or couldn't be deleted
             
-    def list_collections(self) -> List[str]:
+            # Create new
+            return self.client.get_or_create_collection(name=name)
+        except Exception as e:
+            logger.error(f"Error creating collection: {str(e)}")
+            raise
+
+    def add_documents(self, collection, embeddings, documents, metadatas=None):
         """
-        List all collections
-        Returns:
-            List of collection names
+        Add documents to collection
         """
-        collections = self.client.list_collections()
-        return [c.name for c in collections]
+        if not embeddings:
+            return 0
+            
+        count = len(embeddings)
+        ids = [str(uuid.uuid4()) for _ in range(count)]
         
-    def get_collection_stats(self, collection: chromadb.Collection) -> Dict:
-        """
-        Get statistics about a collection
-        Args:
-            collection: ChromaDB collection
-        Returns:
-            Dict with count and other stats
-        """
-        count = collection.count()
+        # Ensure documents is a list matching embeddings length
+        if len(documents) != count:
+            logger.error(f"Mismatch: {len(documents)} docs vs {count} embeddings")
+            raise ValueError("Documents and embeddings counts must match")
+
+        # Filter out failed embeddings (None)
+        valid_indices = [i for i, emb in enumerate(embeddings) if emb is not None]
         
-        return {
-            'name': collection.name,
-            'count': count,
-            'metadata': collection.metadata
-        }
+        if len(valid_indices) < len(embeddings):
+            logger.warning(f"Dropping {len(embeddings) - len(valid_indices)} chunks due to embedding errors")
+            
+        if not valid_indices:
+            logger.error("No valid embeddings to add")
+            return 0
+            
+        # Filter data based on valid indices
+        embeddings = [embeddings[i] for i in valid_indices]
+        ids = [ids[i] for i in valid_indices]
+        documents = [documents[i] for i in valid_indices]
+        metadatas = [metadatas[i] for i in valid_indices]
+            
+        try:
+            collection.add(
+                ids=ids,
+                embeddings=embeddings,
+                documents=documents,
+                metadatas=metadatas
+            )
+            return len(valid_indices)
+            
+        except Exception as e:
+             logger.error(f"Error adding documents: {str(e)}")
+             raise
+
+    def search(self, collection, query_embedding, top_k=5):
+        """
+        Search for relevant documents
+        """
+        try:
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=top_k,
+                include=["documents", "distances", "metadatas"]
+            )
+            
+            # Format results
+            formatted_results = []
+            if results['documents'] and len(results['documents'][0]) > 0:
+                for i in range(len(results['documents'][0])):
+                    doc = results['documents'][0][i]
+                    dist = results['distances'][0][i] if results['distances'] else 0.0
+                    similarity = max(0.0, 1.0 - dist)
+                    metadata = results['metadatas'][0][i] if results['metadatas'] else {}
+                    
+                    formatted_results.append({
+                        "text": doc,
+                        "similarity": similarity,
+                        "metadata": metadata
+                    })
+            
+            return formatted_results
+            
+        except Exception as e:
+            logger.error(f"Error searching: {str(e)}")
+            return []
