@@ -547,6 +547,13 @@ CUSTOM_CSS = """
             font-size: 1.75rem !important;
         }
     }
+    /* Fix Material Icons Font Override */
+    .material-symbols-rounded,
+    .material-icons,
+    span.material-symbols-rounded {
+        font-family: 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
+    }
+
 </style>
 """
 
