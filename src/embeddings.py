@@ -8,7 +8,7 @@ import time
 logger = logging.getLogger(__name__)
 
 class GeminiEmbedder:
-    def __init__(self, api_key, model_name="models/gemini-embedding-001"):
+    def __init__(self, api_key, model_name="models/text-embedding-004"):
         genai.configure(api_key=api_key)
         self.model_name = model_name
         
