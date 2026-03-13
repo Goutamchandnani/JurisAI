@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0A1628;
+  --foreground: #E8EDF4;
+}
+
+body {
+  color: var(--foreground);
+  background: radial-gradient(circle at top right, #1A2942 0%, #0A1628 100%);
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom premium animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.glass-card {
+  background: rgba(26, 35, 50, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 169, 97, 0.1);
+  border-radius: 1rem;
+}
+
+.gold-text {
+  background: linear-gradient(135deg, #C9A961 0%, #E5D4A6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
