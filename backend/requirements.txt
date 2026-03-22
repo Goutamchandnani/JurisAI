@@ -9,3 +9,4 @@ pdfplumber
 sentence-transformers
 tiktoken
 numpy
+langchain-text-splitters

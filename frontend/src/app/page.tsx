@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Upload, FileText, Send, Loader2, Scale, BookOpen, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Upload, FileText, Send, Loader2, Scale, BookOpen, ShieldCheck, ChevronRight, Github, Linkedin, Heart } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
@@ -13,6 +13,25 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [chat, setChat] = useState<{ role: 'user' | 'ai'; content: string; sources?: any[] }[]>([]);
   const [isQuerying, setIsQuerying] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setFile(e.dataTransfer.files[0]);
+    }
+  };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,24 +53,21 @@ export default function Home() {
     }
   };
 
-  const handleQuery = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query || !collectionName) return;
+  const submitQuery = async (text: string) => {
+    if (!text || !collectionName) return;
 
-    const userMessage = query;
-    setQuery('');
-    setChat(prev => [...prev, { role: 'user', content: userMessage }]);
+    setChat(prev => [...prev, { role: 'user', content: text }]);
     setIsQuerying(true);
 
     try {
       const res = await axios.post(`${BACKEND_URL}/query`, {
         collection_name: collectionName,
-        query: userMessage
+        query: text
       });
       setChat(prev => [...prev, { 
         role: 'ai', 
         content: res.data.answer, 
-        sources: res.data.sources 
+        sources: Array.isArray(res.data.sources) ? res.data.sources : [] 
       }]);
     } catch (err) {
       console.error(err);
@@ -59,6 +75,14 @@ export default function Home() {
     } finally {
       setIsQuerying(false);
     }
+  };
+
+  const handleQuery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query || !collectionName || isQuerying) return;
+    const userMessage = query;
+    setQuery('');
+    await submitQuery(userMessage);
   };
 
   return (
@@ -76,12 +100,19 @@ export default function Home() {
           <section>
             <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold mb-4">Document Management</h3>
             <form onSubmit={handleUpload} className="space-y-4">
-              <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-gold-500/50 transition-colors bg-white/5">
-                <Upload className="w-6 h-6 text-gold-500 mb-2" />
+              <label 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                  isDragging ? 'border-gold-500 bg-gold-500/10' : 'border-white/10 hover:border-gold-500/50 bg-white/5'
+                }`}
+              >
+                <Upload className={`w-6 h-6 mb-2 transition-colors ${isDragging ? 'text-gold-400' : 'text-gold-500'}`} />
                 <span className="text-xs text-white/60 text-center">
-                  {file ? file.name : "Select Legal PDF"}
+                  {file ? file.name : (isDragging ? "Drop PDF here" : "Select or drag Legal PDF")}
                 </span>
-                <input type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                <input type="file" className="hidden" accept=".pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} />
               </label>
               <button 
                 type="submit" 
@@ -98,11 +129,33 @@ export default function Home() {
             <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold mb-4">Quick Analysis</h3>
             <div className="space-y-2">
               {["Termination Clauses", "Confidentiality", "Governing Law"].map((item) => (
-                <button key={item} className="w-full text-left p-3 glass-card text-xs text-white/70 hover:text-gold-500 transition-colors flex items-center justify-between group">
+                <button 
+                  key={item} 
+                  disabled={!collectionName || isQuerying || isUploading}
+                  onClick={() => submitQuery(`Please identify and summarize all ${item.toLowerCase()} in this document.`)}
+                  className="w-full text-left p-3 glass-card text-xs text-white/70 hover:text-gold-500 transition-colors flex items-center justify-between group disabled:opacity-30 disabled:cursor-not-allowed"
+                >
                   {item}
                   <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
               ))}
+            </div>
+          </section>
+
+          {/* Credits Section */}
+          <section className="pt-4 border-t border-white/5">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5 text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                Made with <Heart className="w-3 h-3 text-red-500 fill-current" /> by Goutam Chandnani
+              </div>
+              <div className="flex gap-4">
+                <a href="https://www.linkedin.com/in/goutamchandnani/" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-gold-500 transition-colors" aria-label="LinkedIn">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a href="https://github.com/Goutamchandnani/JurisAI.git" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-gold-500 transition-colors" aria-label="GitHub">
+                  <Github className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </section>
         </div>
@@ -152,16 +205,16 @@ export default function Home() {
               }`}>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                 
-                {msg.sources && msg.sources.length > 0 && (
+                {Array.isArray(msg.sources) && msg.sources.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
                     <p className="text-[10px] uppercase tracking-tighter text-gold-500 font-bold">Verified Sources</p>
                     {msg.sources.map((src, j) => (
                       <div key={j} className="p-3 bg-black/20 rounded-lg border border-gold-500/10">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-[10px] text-white/60 truncate">{src.metadata.source}</span>
-                          <span className="text-[10px] font-bold text-gold-400">{(src.similarity * 100).toFixed(1)}% Relevance</span>
+                          <span className="text-[10px] text-white/60 truncate">{src.section || "Document"}</span>
+                          <span className="text-[10px] font-bold text-gold-400">{src.similarity ? (src.similarity * 100).toFixed(1) : "0.0"}% Relevance</span>
                         </div>
-                        <p className="text-[11px] text-white/50 italic line-clamp-2">"{src.text}"</p>
+                        <p className="text-[11px] text-white/50 italic line-clamp-2">"{src.text_preview || src.text || ""}"</p>
                       </div>
                     ))}
                   </div>

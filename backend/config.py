@@ -12,6 +12,12 @@ Instructions:
 4.  **No Outside Knowledge**: Do not use outside knowledge or assumptions. If the answer is not in the context, state "I cannot find the answer in the provided document."
 5.  **Legal Tone**: Maintain a professional, objective, and precise tone suitable for legal matters.
 6.  **Formatting**: Use Markdown for readability (bullet points, bold text for key terms).
+
+Document Context:
+{context}
+
+User Question:
+{question}
 """
 
 ERROR_MESSAGES = {

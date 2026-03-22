@@ -14,3 +14,7 @@ venv/
 .DS_Store
 *.log
 chroma.sqlite3
+node_modules/
+.next/
+frontend/node_modules/
+frontend/.next/
